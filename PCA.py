@@ -7,7 +7,7 @@ from scipy import stats
 from sklearn.cluster import KMeans
 
 #load in csv file
-path_to_csv = "/Users/logandrawdy/Documents/GA Tech- Year Three/CS 4641/Project/stock_features_cleaned.csv"
+path_to_csv = "stock_features_cleaned.csv"
 #pandas dataframe
 features_df = pd.read_csv(path_to_csv)
 #convert to numpy array
@@ -69,14 +69,15 @@ used for risk reduction.
 Therefore, we will use cluster 2 and cluster 5 to attempt to build a balanced portfolio.
 """
 #save to csv
-features_df.to_csv("/Users/logandrawdy/Documents/GA Tech- Year Three/CS 4641/Project/stock_features_cleaned_with_clusters.csv")
+features_df.to_csv("stock_features_cleaned_with_clusters.csv")
 #save clusters wanted for portfolio
 cluster_2 = features_df.loc[features_df['labels'] == 2]
 cluster_5 = features_df.loc[features_df['labels'] == 5]
 #add the two clusters together
-portfolio = cluster_2.append(cluster_5)
+portfolio = cluster_2._append(cluster_5)
 #save to csv
-portfolio.to_csv("/Users/logandrawdy/Documents/GA Tech- Year Three/CS 4641/Project/stocks_for_portfolio.csv")
+portfolio.to_csv("stocks_for_portfolio.csv")
+
 #plot the data
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -84,4 +85,23 @@ ax.scatter(features_pca[:,0], features_pca[:,1], features_pca[:,2], c=kmeans.lab
 ax.set_xlabel('PCA 1')
 ax.set_ylabel('PCA 2')
 ax.set_zlabel('PCA 3')
+
+fig2 = plt.figure()
+ax2 = fig2.add_subplot(111, )
+ax2.scatter(features_pca[:,0], features_pca[:,1], c=kmeans.labels_.astype(float))
+ax2.set_xlabel('PCA 1')
+ax2.set_ylabel('PCA 2')
+
+fig3 = plt.figure()
+ax3 = fig3.add_subplot(111)
+ax3.scatter(features_pca[:,0], features_pca[:,2], c=kmeans.labels_.astype(float))
+ax3.set_xlabel('PCA 1')
+ax3.set_ylabel('PCA 3')
+
+fig4 = plt.figure()
+ax4 = fig4.add_subplot(111)
+ax4.scatter(features_pca[:,1], features_pca[:,2], c=kmeans.labels_.astype(float))
+ax4.set_xlabel('PCA 2')
+ax4.set_ylabel('PCA 3')
+
 plt.show()
