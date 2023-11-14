@@ -80,7 +80,14 @@ As stated cluster 3 has extremely high returns and high volatility. This cluster
 Clusters 5 and 2 are then selected to build our portfolio off of. The efficient frontier is graphed below.
 
 ##### Figure 8: Efficient Frontier
+![Alt text](img/efficientfrontier.png)
 
+Since we sought out to create a minimum volatility portfolio, we can see in the graph that volatility is at its minimum around 50 percent return, therefore we can expect a return of around 50 percent from a minimum volatility portfolio using the stocks from clusters 5 and 2. The weights in order to achieve this are calculated next.
+
+##### Table 4: Stock Portfolio Weights
+![Alt Text](img/assetweights.png)
+
+116 stocks were selected to invest in, all varying in industry, and having weights, or percentages, of how much to invest in each stock which sum to 1. The expected annual return of this portfolio is 54.3 percent with a volatility of 8.9 percent and a sharpe ratio 5.89. This is quite significant, as a sharpe ratio being above 3 is considered excellent for investing, and 54.3 percent return with only 8.9 percent volatility has significantly better performance than typical portfolios made by hand. In the next phase of the project, we will be utilizing supervised learning techniques to attempt to predict the performance of this portfolio over time to try and determine points of higher risk of loss.
 
 ## References
 Dingming Wu, Xiaolong Wang, Shaocong Wu, “Construction of stock portfolios based on k-means clustering of continuous trend features”, Knowledge-Based Systems, Volume 252, 2022, 109358, ISSN 0950-7051.
