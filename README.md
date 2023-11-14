@@ -24,11 +24,11 @@ To collect our data, we compiled CSV viles of every equity listed on the NASDAQ,
 
 Once our data was collected, we found that we had many null values for the EPS feature so we dropped it as we concluded there was not enough data to consider utilizing it for our model. Average Volume was also dropped from the list of features because we felt that it provided less valuable information than other selected features and yielded significant variance that we believed would affect the output of the model significantly. After all of this, we then had data that would suffice in identifying stocks to use in portfolio creation, structured as such in the table of 6047 stocks seen below:
 
-##### Figure 1: Stock Chart
+##### Table 1: Stock Chart
 ![Alt text](img/stock_chart.png)
 (Only NASDAQ is shown because of the way data is sorted)
 
-The data was cleaned of any null values that it created (i.e. a stock with insufficient data). Next, we had to remove outliers from the data. These outliers consisted of stocks such as ACCD in the table above, which had significantly larger average return and volatility values. These trends can be associated with the large influx of investment in small and volatile bio-technology and pharmaceutical companies during the pandemic, which have now stabilized at significantly lower returns. In addition, this includes stocks with very randomnly large, and almost instantaneous increases in return and traded volume, likely due to the nature of high frequency trading bots exploiting the market inefficiencies. Furthermore, we wanted to eliminate stocks such as ACABU in Figure 1, having an RSI of 0, which is an indication of continuous 14 day loss with no gain, or stagnation of price return as a whole. To do this, we calculated the z-scores for each data point at each feature and eliminated any data point that had a feature with a z-score feature greater than 3 (meaning that the point was farther than 3 standard deviations from the average of that particular feature for that data set), classifying it as an outlier assuming a normal distribution of the data. 
+The data was cleaned of any null values that it created (i.e. a stock with insufficient data). Next, we had to remove outliers from the data. These outliers consisted of stocks such as ACCD in the table above, which had significantly larger average return and volatility values. These trends can be associated with the large influx of investment in small and volatile bio-technology and pharmaceutical companies during the pandemic, which have now stabilized at significantly lower returns. In addition, this includes stocks with very randomnly large, and almost instantaneous increases in return and traded volume, likely due to the nature of high frequency trading bots exploiting the market inefficiencies. Furthermore, we wanted to eliminate stocks such as ACABU in Table 1, having an RSI of 0, which is an indication of continuous 14 day loss with no gain, or stagnation of price return as a whole. To do this, we calculated the z-scores for each data point at each feature and eliminated any data point that had a feature with a z-score feature greater than 3 (meaning that the point was farther than 3 standard deviations from the average of that particular feature for that data set), classifying it as an outlier assuming a normal distribution of the data. 
 
 With all of this cleaning complete, we were left with 6273 stocks to use for our model.
 
@@ -40,6 +40,46 @@ Once PCA created a usable visualization, we could run K-Means to identify cluste
 Finally, once we have the clusters of stocks we want to focus on, we will create an optimal portfolio using some of the stocks from those clusters. This will be done utilizing portfolio optimization techniques and the Python Portfolio Optimization Library. First, we can change the parameters of the data we want to look at within the selected clusters (for example, only using stocks that have positive returns and sharpe ratio greater than 1) depending on preference. Then, we will use an efficient frontier to create a minimum variance portfolio with the stocks provided in specific clusters we select. To create this efficient frontier we will use the historic prices for each stock from November 3rd, 2018 to November 3rd, 2023, the same range of dates we originally used for data collection. The efficient frontier is created using the average historical returns and a shrunk covariance matrix using the Ledoit Wolf method, which is commonly used in practical finance. We then find the point on this frontier that minimizes volatility, which will give us weights, or percentages of how much we should invest in each stock to minimize risk, while maximizing returns.
 
 ## Results and Discussion
+After running PCA, our transformed data appeared as follows:
+
+##### Figures 1 & 2: PCA Visualization
+![Alt text](img/pca1.png) ![Alt text](img/pca2.png)
+
+In Figures 2 & 3, the yellow points are stocks on the NASDAQ and the purple points are stocks on the NYSE. The explained variance for each principal component 1, 2, and 3 were 0.43968451, 0.26831039, 0.14900349 respectively. This means that principle component 1 primarily explains the variance in the data, which remains consistent with the visualization. We also see that there is a significant number of points all clustered around the same area on the coordinate plane at PCA 2 = 0, while others are dispersed more randomly where PCA 2 > 0. This is an indication that our data preprocessing did not get rid of all outliers of certain features relative to the rest of the data. However, this is not necessarily a problem considering we got rid of all outliers that couldn’t lie under a normal distribution. We also note that the majority of the points we can consider these ‘outliers’ lie on the NASDAQ, which remains consistent with the notion that equities listed on the NASDAQ tend to be more risky than equities listed on the NYSE. It is likely that the points lying within the cluster follow trends and exhibit features seen more typically in the market, while the ‘outliers’ deviate from these trends, which is a visualization of market ineffeciencies. However, because we do not know exactly what these 3 principle components mean, other than that they are orthogonal linear combinations of the 6 original features, we cannot draw further conclusions without looking at the original data along with these visualizations. Before we do that we will look at how the equities can be further put into clusters.
+
+We first examined the inertias of selecting *i* numbers of clusters from 2 to 11. This is shown in the figure below:
+
+##### Figure 3: Intertia for Clusters
+![Alt text](img/inertia.png)
+
+From this we see an ‘elbow’ where the inertia switched from exponential decrease to linear decrease at 6 clusters. Therefore, we decided that 6 numbers of clusters would be suitable for our needs. We can then observe what these clusters looked like in 2d for PCA 1 and 2, PCA 2 and 3, and PCA 1 and 3, as well as a 3d representation similar to that of original PCA visualization.
+
+##### Figures 4, 5, 6 & 7: 2D PCA Visualizations
+![Alt text](img/2Dpca1.png) ![Alt text](img/2Dpca2.png)
+![Alt text](img/2Dpca3.png) ![Alt text](img/2Dpca4.png)
+
+Now that we have the clusters, we can use the label to identify the key differences of each feature at each cluster.
+
+##### Table 2: Feature Differences per Cluster
+![Alt text](img/featurediff.png)
+
+* Cluster 0: Moderate returns, low volatility, and a high Sharpe Ratio. The RSI indicates a slightly bullish trend.
+* Cluster 1: Negative returns, moderate volatility, and a reasonable Sharpe Ratio. The RSI is below 50, indicating a bearish trend.
+* Cluster 2: Near-zero returns, low volatility, and a low Sharpe Ratio. The RSI is high, indicating a bullish trend.
+* Cluster 3: Outlier cluster with extremely high returns and volatility.
+* Cluster 4: High returns, moderate volatility, and a modest Sharpe Ratio. The RSI is moderate, indicating a neutral trend.
+* Cluster 5: Moderate returns, low volatility, and a high Sharpe Ratio. The RSI is below 50, indicating a bearish trend.
+
+In this project, our goal is to maximize return, minimize volatility, maximize CAPM, maximize sharpe ratio, and minimize RSI. We can then use Beta to further analyze how the cluster will behave relative to the market.
+
+##### Table 3: Each Cluster Relative to the Market
+![Alt text](img/beta.png)
+
+As stated cluster 3 has extremely high returns and high volatility. This cluster is a turquoise cluster in Figures 4, 5, 6, & 7, and is created with some of the ‘outliers’ described when looking at the results of the PCA. This cluster represents equities that yield returns on market inefficiencies. Therefore, this cluster should be discarded as it is not viable for long term investment strategies. The next highest returns are from clusters 4 and 5 respectively, however cluster 5 also maximizes the CAPM and sharpe ratio, and minimizes the RSI (indicating it is a good time to buy). Therefore, cluster 5 is selected to maximize returns at lower risk than cluster 4, while moving similarly to the market (indicated by a Beta near 1). Cluster two is then selected for further risk mitigation, as it has the lowest volatility, and near 0 average return.
+
+Clusters 5 and 2 are then selected to build our portfolio off of. The efficient frontier is graphed below.
+
+##### Figure 8: Efficient Frontier
 
 
 ## References
@@ -56,20 +96,14 @@ Here is a link to our project timeline as a Gantt Chart. If there is an issue wi
 
 [Project Time Table](https://docs.google.com/spreadsheets/d/1u52pXjQm2g6DSqXZazK3U_52LHC-w85W/edit?usp=sharing&ouid=103164204269219948791&rtpof=true&sd=true)
 
-## Contribution Table
-Alek Kaluza: GitHub Setup, Video Recording<br>
-Logan Drawdy: Introduction/Background, Problem Definition<br>
-Eric Shavkin: Problem Definition, Methods<br>
-Olaolu Dada: Methods, Project Timeline<br>
-Dom Fernando: Potential Results and Discussion
+## Contribution Table for Project Midterm Report
+Alek Kaluza: KMeans Clustering, GitHub Page<br>
+Logan Drawdy: Data Collection and Cleaning<br>
+Eric Shavkin: PCA and Methods Writeup<br>
+Olaolu Dada: Results Writeup and Visualizations<br>
+Dom Fernando: KMeans Clustering and Visualization
 
 ## Checkpoint
-**Midterm Report**
-- Fully cleaned dataset
-- Expect proper K-Means Clustering of data
-- Provide visuals of clustering
-- Begin supervised learning portion
-
 **Final Report**
 - Have supervised learning complete
 - Provide more visuals to demonstrate stock prediction
